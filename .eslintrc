@@ -2,6 +2,9 @@
     "env": {
         "es6": true
     },
+    "globals": {
+        "sea": false
+    },
     "rules": {
         "no-cond-assign": "warn",
         "no-console": "warn",
@@ -28,7 +31,7 @@
         "valid-jsdoc": "warn",
         "valid-typeof": "error",
         "block-scoped-var": "error",
-        "complexity": ["warn", 5],
+        "complexity": ["warn"],
         "curly": "error",
         "dot-notation": "warn",
         "eqeqeq": "warn",
@@ -63,7 +66,7 @@
         "no-new-wrappers": "error",
         "no-octal": "error",
         "no-octal-escape": "error",
-        "no-param-reassign": "warn",
+        "no-param-reassign": "off",
         "no-proto": "error",
         "no-redeclare": "error",
         "no-return-assign": ["error", "always"],
@@ -146,7 +149,7 @@
         "lines-around-directive": ["error", "always"],
         "max-depth": ["warn", 4],
         "max-len": ["warn", 160],
-        "max-nested-callbacks": ["warn", 3],
+        "max-nested-callbacks": ["warn"],
         "max-params": ["warn", 4],
         "max-statements-per-line": ["error", {
             "max": 2
@@ -172,7 +175,7 @@
         "no-tabs": "error",
         "no-trailing-spaces": "error",
         "no-underscore-dangle": "warn",
-        "no-unneeded-ternary": "error",
+        "no-unneeded-ternary": "off",
         "no-whitespace-before-property": "error",
         "object-curly-newline": ["error", {
             "multiline": true

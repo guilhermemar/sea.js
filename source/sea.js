@@ -18,11 +18,13 @@
     };
 
     resources.define = function define (manifest, scope) {
+
         if (typeof (manifest) === 'string') {
             manifest = {name: manifest};
 
-        } else if (!manifest.name) {
+        } else if (typeof manifest.name !== 'string') {
             throw new Error('Undefined new module name');
+
         }
 
         if (modules[manifest.name]) {
@@ -49,14 +51,14 @@
         }
 
         if (notFound.length > 0) {
-            return Promise.reject('The dependences not found ' + notFound.toString());
+            return Promise.reject(`The dependences not found ${notFound.toString()}`);
         }
 
         Promise.resolve(resources.require, resources.define);
     };
 
     scope.sea = function sea (callback) {
-        if (typeof(callback) === 'function' ) {
+        if (typeof callback === 'function' ) {
             callback(resources);
         }
 
