@@ -59,6 +59,10 @@ sea().define('sea.utils', function seaUtils () {
         return scope.TYPE_UNDEFINED;
     };
 
+    scope.checkTypeOf = function checkTypeOf (value, isType) {
+        return (scope.getTypeOf(value) === isType);
+    };
+
     //
     // SCOPE EXPORT
     //

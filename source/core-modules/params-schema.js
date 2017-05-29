@@ -5,15 +5,10 @@ sea(function aSeaScope (res) {
         const utils = require('sea.utils');
 
         define('sea.params-schema', function defSeaParamsSchema () {
-
-            //
-            // SCOPE DEFINITION
-            //
-
             const scope = {};
 
-            // // // // // //
-            // PUBLIC METHODS
+            //
+            // METHODS
 
             scope.create = function create (schema) {
                 Object.keys(schema).forEach((key) => {
@@ -46,6 +41,9 @@ sea(function aSeaScope (res) {
                     // checking required
                     now.required = now.required ? true : false;
 
+                    // checking options
+                    now.options = now.options instanceof Array ? now.options : [];
+
                     // checking default
                     now.default = now.default;
 
@@ -58,17 +56,20 @@ sea(function aSeaScope (res) {
                 return schema;
             };
 
-            scope.check = function check (params, schema) {
+            scope.check = function check (params, schema, args) {
+                args = utils.checkTypeOf(args, utils.TYPE_JSON) || {};
+                args.prefixError = args.preErr || 'sea.params-schema';
+
                 const errors = [];
 
                 // validating params by old form
 
                 if (utils.getTypeOf(params) !== utils.TYPE_JSON) {
-                    throw new Error("params isn't a json object");
+                    throw new Error(`[${args.prefixError}] isn't a json object`);
                 }
 
                 if (utils.getTypeOf(schema) !== utils.TYPE_JSON || schema.validSchema !== true) {
-                    throw new Error("schema isn't a schema generated using create method");
+                    throw new Error(`[${args.prefixError}] schema isn't a schema generated using create method`);
                 }
 
                 // validating params
@@ -80,14 +81,22 @@ sea(function aSeaScope (res) {
 
                     if (p) {
                         if (s.type.indexOf(utils.getTypeOf(p)) === -1) {
-                            errors.put(`Invalid type for param ${key}, it's must be ${s.type}`);
+                            errors.put(`[${args.prefixError}] Invalid type for param ${key}, it's must be ${s.type}`);
+                        }
+
+                        if (s.options.length > 0 && s.otions.indexOf(p) === -1) {
+                            errors.put(`[${args.prefixError}] Invalid value for param ${key}, expected: ${s.options}`);
                         }
                     } else if (s.required) {
-                        errors.put(`Required param ${key} is required, but not found`);
+                        errors.put(`[${args.prefixError}] Required param ${key} is required, but not found`);
                     } else {
                         params[key] = s.default;
                     }
                 });
+
+                if (errors.length) {
+                    throw new Error(errors.join('\n'));
+                }
 
                 return params;
             };
