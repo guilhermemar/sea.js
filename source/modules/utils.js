@@ -3,13 +3,11 @@ sea().define('sea.utils', function seaUtils () {
 
     //
     // SCOPE DEFINITION
-    //
 
     const scope = {};
 
     //
     // UTILITIES
-    //
 
     scope.setConst = function setConst (obj, key, value) {
         if (obj.constructor !== {}.constructor) {
@@ -26,7 +24,6 @@ sea().define('sea.utils', function seaUtils () {
     scope.setConst(scope, 'TYPE_NUMBER',    'number');
     scope.setConst(scope, 'TYPE_STRING',    'string');
     scope.setConst(scope, 'TYPE_UNDEFINED', 'undefined');
-
 
     scope.getTypeOf = function getTypeOf (value) {
         if (value === null) {
@@ -65,8 +62,6 @@ sea().define('sea.utils', function seaUtils () {
 
     //
     // SCOPE EXPORT
-    //
 
     return scope;
-
 });

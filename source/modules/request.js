@@ -61,7 +61,6 @@ sea(function aSeaScope (res) {
 
             //
             // METHODS
-            //
 
             scope.queryString = function queryString (data) {
                 if (utils.getTypeOf(data) !== utils.TYPE_JSON ) {
@@ -127,9 +126,36 @@ sea(function aSeaScope (res) {
                     xhr.open(args.method, args.url, true);
                     xhr.send(args.body);
                 });
-
             };
 
+            scope.delete = function deleteMethod (params) {
+                params.method = scope.DELETE;
+
+                return scope.does(params);
+            };
+
+            scope.get = function get (params) {
+                params.method = scope.GET;
+
+                return scope.does(params);
+            };
+
+            scope.post = function post (params) {
+                params.method = scope.POST;
+
+                return scope.does(params);
+            };
+
+            scope.put = function put (params) {
+                params.method = scope.PUT;
+
+                return scope.does(params);
+            };
+
+            //
+            // EXPORT SCOPE
+
+            return scope;
         });
     });
 
