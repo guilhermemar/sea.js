@@ -210,7 +210,7 @@
         "template-tag-spacing": "error",
         "unicode-bom": ["error", "never"],
         "wrap-regex": "warn",
-        "arrow-body-style": ["error", "as-needed"],
+        "arrow-body-style": ["off", "as-needed"],
         "arrow-parens": ["error", "always"],
         "arrow-spacing": "error",
         "constructor-super": "error",
