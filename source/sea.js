@@ -1,22 +1,77 @@
 /* globals window */
+/**
+ * The seajs definition
+ *
+ * @param  {object}    scope Scope to be added seajs
+ * @return {undefined}
+ */
 (function seajs (scope) {
+
+    /**
+     * resource properties config
+     *
+     * @typedef  {Object}   Resources
+     * @property {Object}   window      - alias for browser window
+     * @property {Object}   console     - alias for browser console
+     * @property {Object}   document    - alias for browser document
+     * @property {function} define      - define a new module
+     * @property {function} require     - require a module
+     * @property {function} requireSync - request synchronously a module
+     * @property {function} load        - wait load a list of modulet to execute a callback
+     */
+
+    /**
+     * A callback that contains a param with resources
+     *
+     * @callback cbWithResource
+     * @param {Resources}
+     */
+
     'use strict';
 
-    const modules = {},
-        resources = {};
+    /**
+     * store all defined modules
+     *
+     * @type {Object}
+     */
+    const modules = {};
 
-    resources.window   = window;
-    resources.console  = window.console;
+    /**
+     * list of 'requires' waiting a module
+     *
+     * @type {Object}
+     */
+    const waiting = {};
+
+    /**
+     * scope for resources
+     *
+     * @type {Resources}
+     */
+    const resources = {};
+
+    /**
+     * window alias
+     */
+    resources.window = window;
+
+    /**
+     * console alias
+     */
+    resources.console = window.console;
+
+    /**
+     * document alias
+     */
     resources.document = window.document;
 
-    resources.require = function require (module) {
-        if (modules[module]) {
-            return modules[module].scope;
-        }
-
-        throw new Error(`Module ${module} not found`);
-    };
-
+    /**
+     * Define e new module
+     * @param  {string|Object}  manifest      - module name, or module manifest
+     * @param  {String}         manifest.name - the module name
+     * @param  {cbWithResource} scope         - function to be executed to get a module scope
+     * @return {undefined}
+     */
     resources.define = function define (manifest, scope) {
 
         if (typeof (manifest) === 'string') {
@@ -32,31 +87,84 @@
         }
 
         manifest.scope = scope(resources);
-        modules[manifest.name]  = manifest;
+        modules[manifest.name] = manifest;
+
+        if (waiting[manifest.name]) {
+            waiting[manifest.name].forEach( (item) => {
+                item(manifest.scope);
+            });
+
+            delete waiting[manifest.name];
+        }
     };
 
-    resources.load = function load (dependences) {
-        if (dependences instanceof Array) {
-            return Promise.resolve(resources.require, resources.define);
-        }
+    /**
+     * Require a module
+     *
+     * @param  {string}         module  - Module name
+     * @return {Promise<mixed>}         - A promise that contains the module content
+     */
+    resources.require = function require (module) {
+        return new Promise((resolve) => {
+            if (modules[module]) {
+                resolve(modules[module].scope);
+            } else {
+                if (!waiting[module]) {
+                    waiting[module] = [];
+                }
 
-        const notFound = [];
-
-        let i;
-
-        for (i = 0; i < dependences.length; ++i) {
-            if (!modules[dependences[i]]) {
-                notFound.push(dependences[i]);
+                waiting[module].push(resolve);
             }
-        }
-
-        if (notFound.length > 0) {
-            return Promise.reject(`The dependences not found ${notFound.toString()}`);
-        }
-
-        Promise.resolve(resources.require, resources.define);
+        });
     };
 
+    /**
+     * Require synchronously a module
+     *
+     * @param  {string} module - Module name
+     * @return {mixed}         - The module content
+     * @throws {Error}         - Will throw a error if the requested module not found
+     */
+    resources.requireSync = function requireSync (module) {
+        if (modules[module]) {
+            return modules[module].scope;
+        }
+
+        throw new Error(`Module ${module} not found`);
+    };
+
+    /**
+     * Wait load a list of dependences to execute a callback
+     *
+     * @param  {string[]}  [dependences] - Array with the requested modules names
+     * @return {Promise}                 - A Promise that will be resolved when all dependencies will defined
+     */
+    resources.load = function load (dependences) {
+        return new Promise((resolve) => {
+            if (!(dependences instanceof Array)) {
+                resolve();
+            }
+
+            const notFound = [];
+
+            for (let i = 0; i < dependences.length; ++i) {
+                if (typeof modules[dependences[i]] === 'undefined') {
+                    notFound.push(resources.require(dependences[i]));
+                }
+            }
+
+            Promise.all(notFound).then(() => {
+                resolve();
+            });
+        });
+    };
+
+    /**
+     * Main seajs function
+     *
+     * @param  {cbWithResource} callback - A callback to be executed inside seajs scope
+     * @return {Resource}                - The seajs resource
+     */
     scope.sea = function sea (callback) {
         if (typeof callback === 'function' ) {
             callback(resources);

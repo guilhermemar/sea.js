@@ -20,7 +20,7 @@
     const paths = {
         source : ['gulpfile.js', './source/**/*.js'],
         build  : [
-            './source/utils.js',
+            './source/sea.js',
             './source/modules/utils.js',
             './source/modules/params-schema.js',
             './source/modules/utils.js'
